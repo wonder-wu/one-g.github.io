@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Sample Post
+title: 豆腐干豆腐干地方
 date: 2015-02-05 15:32:24.000000000 +09:00
 ---
 
