@@ -1,6 +1,6 @@
 ---
 layout: post
-title: jQuery实现Slider左右图片滑动
+title: jQuery
 date: 2016-12-02 15:32:24.000000000 +09:00
 ---
 
