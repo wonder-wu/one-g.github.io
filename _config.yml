@@ -1,11 +1,11 @@
 # Basic
 title: 时间之流
-subtitle: OneG's blog
+subtitle: wonder-wu's blog
 welcome_message: <a href="www.linkwwj.com" target="_blank">另外一个小站</a>
-description: 我是oneG，爱好游戏、编程、电影，谨以此博客记录和分享生活与工作中的灵感和经验。
-creator: <a href="http://one-g.github.io">@oneG</a>
+description: 我是wonde-wu，爱好游戏、编程、电影，谨以此博客记录和分享生活与工作中的灵感和经验。
+creator: <a href="http://wonder-wu.github.io">@wonde-wu</a>
 
-url: "http://one-g.github.io"
+url: "http://wonder-wu.github.io"
 
 permalink: /:year/:month/:title/
 
