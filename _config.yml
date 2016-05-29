@@ -1,0 +1,52 @@
+# Basic
+title: 时间之流
+subtitle: OneG's blog
+welcome_message: <a href="www.linkwwj.com" target="_blank">另外一个小站</a>
+description: 我是oneG，爱好游戏、编程、电影，谨以此博客记录和分享生活与工作中的灵感和经验。
+creator: <a href="http://one-g.github.io">@oneG</a>
+
+url: "http://one-g.github.io"
+
+permalink: /:year/:month/:title/
+
+# Format
+highlighter: plain
+markdown: redcarpet
+redcarpet:
+  extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "strikethrough", "superscript", tables]
+
+# supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
+cover_color: blue
+
+# The blog button should not be removed.
+blog_button:
+    title: 博客
+    description: Visit blog
+
+# Navigation buttons in the front page.
+nav:
+    #- {title: Projects, description: My Projects, url: 'http://project.onevcat.com'}
+    # - {title: Another Button, description: A button, url: 'http://example.com'}
+
+# Pagination
+gems: [jekyll-paginate]
+paginate: 10
+paginate_path: "page/:num/"
+
+# Comment
+comment:
+    disqus: wonderwu
+    # duoshuo: 
+    
+# Social
+social:
+    #weibo: onevcat
+    github: wonder-wu
+    #twitter: onevcat
+    #gplus: 107108267983477358170
+    mail: linkwwj@hotmail.com
+
+# Google Analytics
+ga:
+    # id: your_ga_id
+    # host: your_host
