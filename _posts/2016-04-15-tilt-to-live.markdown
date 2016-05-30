@@ -12,6 +12,10 @@ date: 2016-04-15 15:32:24.000000000 +09:00
 
 [![show.gif](http://imgchr.com/images/show.gif)](http://imgchr.com/image/P39)
 
+apk下载地址：[http://www.linkwwj.com/copy-tilt-to-live.apk](http://www.linkwwj.com/copy-tilt-to-live.apk)
+
+源码见我的github: [github.com/wonder-wu](github.com/wonder-wu)
+
 
 
 ###重力感应控制移动
