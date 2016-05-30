@@ -1,0 +1,281 @@
+---
+layout: post
+title: Unity学习之有限状态机
+categories: [技术]
+tags: [unity]
+date: 2016-05-15 15:32:24.000000000 +09:00
+---
+### 前言
+游戏开发，了解状态机应该是个必修课，于是参考资料，写了一个简单的状态机。
+
+###代码
+
+```
+
+	/// <summary>
+	/// Transition 状态转换器
+	/// 这里保存所有的转换器枚举
+	/// NullTransition作为默认值，不能改变
+	/// </summary>
+	public enum Transition
+	{
+		NullTransition = 0,//表示目前系统中没有转换器
+	}
+
+	/// <summary>
+	/// State ID 状态ID
+	/// 这里保存所有的状态ID枚举
+	/// </summary>
+	public enum StateID
+	{
+		NullStateID = 0,//表示目前系统中没有状态
+	}
+
+```
+
+```
+	
+	/// <summary>
+	/// State 状态基类，抽象,定义了普遍的方法
+	/// transition和stateID的键值对，用来表示在当前状态下transition发生时，将会转换到的状态
+	/// </summary>
+	public abstract class State  {
+		protected Dictionary<Transition,StateID> m_map = new Dictionary<Transition, StateID>();
+		protected StateID m_stateID;
+		protected GameObject m_owner;
+
+		public void SetOwner(GameObject owner)
+		{
+			m_owner = owner;
+		}
+
+		/// <summary>
+		/// 获取当前状态ID
+		/// </summary>
+		public StateID ID{get { return m_stateID;}}
+
+		/// <summary>
+		/// 添加转换
+		/// </summary>
+		/// <param name="trans">转换器</param>
+		/// <param name="id">触发后的状态</param>
+		public void AddTransition(Transition trans,StateID id)
+		{
+			if (trans == Transition.NullTransition) {
+				Debug.Log ("State ERROR: NullTransition is not allowed for a real transition");
+				return;
+			}
+
+			if (id == StateID.NullStateID) {
+				Debug.LogError("State ERROR: NullStateID is not allowed for a real ID");
+				return;
+			}
+
+			//如果状态转换已经定义过了
+			if (m_map.ContainsKey(trans)) {
+				Debug.LogError("State ERROR: State " + m_stateID.ToString() + " already has transition " + trans.ToString() + 
+					"Impossible to assign to another state");
+				return;
+			}
+
+			m_map.Add (trans, id);
+		}
+
+		/// <summary>
+		/// 消除状态转换
+		/// </summary>
+		/// <param name="trans">要消除的状态触发器</param>
+		public void RemoveTransition(Transition trans)
+		{
+			if (m_map.ContainsKey(trans)) {
+				m_map.Remove (trans);
+				return;
+			}
+			Debug.LogError("State ERROR: Transition " + trans.ToString() + " passed to " + m_stateID.ToString() + 
+				" was not on the state's transition list");
+		}
+
+		/// <summary>
+		/// 改变当前转换
+		/// </summary>
+		/// <param name="trans">转换器</param>
+		/// <param name="id">触发后的状态</param>
+		public void ChangeTransition(Transition trans, StateID id)
+		{
+			RemoveTransition(trans);
+			AddTransition(trans,id);
+		}
+
+		/// <summary>
+		/// 获取变换后的状态
+		/// </summary>
+		/// <returns>Tstate</returns>
+		/// <param name="trans">转换器</param>
+		public StateID GetNextState(Transition trans)
+		{
+			if (m_map.ContainsKey(trans) ){
+				return m_map[trans];
+			}
+			Debug.LogError("State ERROR: Transition " + trans.ToString() + " passed to " + m_stateID.ToString() + 
+				" was not on the state's transition list");
+			return StateID.NullStateID;
+		}
+
+		/// <summary>
+		/// 进入本状态时由fsm调用
+		/// </summary>
+		public virtual void Entering() { }
+
+		/// <summary>
+		/// 离开本状态时由fsm调用
+		/// </summary>
+		public virtual void Leaving() { } 
+
+		/// <summary>
+		/// 用来决定什么条件下进行转换
+		/// </summary>
+		public abstract void Reason();
+
+		/// <summary>
+		/// 当停留在本状态时所进行的循环
+		/// </summary>
+		public abstract void UpdateSelf();
+
+
+```
+
+```
+
+	/// <summary>
+	/// FSM为有限状态机类，它维护了用户具有的状态列表
+	/// </summary>
+	public class FSM  {
+
+
+		private GameObject m_owner = null;
+		private List<State> m_stateList;
+		private StateID m_currentStateID;
+		public StateID currentStateID{get{ return m_currentStateID;}}
+
+		private StateID m_previousStateID;
+		private StateID m_publicStateID;
+
+		private State m_currentState;
+		public State curretnState{get{ return m_currentState;}}
+
+		public FSM(GameObject owner)
+		{
+			m_stateList = new List<State> ();
+			m_owner = owner;
+		}
+
+
+		/// <summary>
+		/// 添加状态
+		/// </summary>
+		/// <param name="s">S.</param>
+		public void AddState(State s)
+		{
+			if (s == null) {
+				Debug.LogError("FSM ERROR: Null reference is not allowed");
+				return;
+			}
+
+			if (m_stateList.Count == 0) {
+				m_stateList.Add (s);
+				m_currentStateID = s.ID;
+				m_currentState = s;
+				return;
+			}
+
+			//如果statelist已经存在状态，但是没有传入状态
+			foreach (var state in m_stateList) {
+				if (state.ID == s.ID) {
+					Debug.LogError("FSM ERROR: Impossible to add state " + s.ID.ToString() + 
+						" because state has already been added");
+					return;
+				}
+			}
+			if (m_owner == null) {
+				Debug.Log ("owner can't be null");
+				return;
+			}
+			s.SetOwner (m_owner);
+			m_stateList.Add (s);
+		}
+
+		/// <summary>
+		/// 去除状态
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		public void RemoveState(StateID id)
+		{
+			if (id == StateID.NullStateID) {
+				Debug.LogError("FSM ERROR: NullStateID is not allowed for a real state");
+				return;
+			}
+
+			foreach (var state in m_stateList) {
+				if (state.ID == id) {
+					m_stateList.Remove (state);
+					return;
+				}
+			}
+			Debug.LogError("FSM ERROR: Impossible to delete state " + id.ToString() + 
+				". It was not on the list of states");
+		}
+
+		/// <summary>
+		/// 用来改变状态
+		/// </summary>
+		/// <param name="trans">Trans.</param>
+		public void PerformTransition(Transition trans)
+		{
+			if (trans == Transition.NullTransition) {
+				Debug.LogError("FSM ERROR: NullTransition is not allowed for a real transition");
+				return;
+			}
+
+			StateID id = m_currentState.GetNextState(trans);
+			if (id == StateID.NullStateID) {
+				Debug.LogError("FSM ERROR: State " + currentStateID.ToString() +  " does not have a target state " + 
+					" for transition " + trans.ToString());
+				return;
+			}
+
+			m_currentStateID = id;
+			foreach (var state in m_stateList) {
+				if (state.ID == m_currentStateID) {
+					m_currentState.Leaving ();
+					m_currentState = state;
+					m_currentState.Entering ();
+					break;
+				}
+			}
+		}
+
+		/// <summary>
+		/// 在对象的UPDATE中调用
+		/// </summary>
+		public void FSMupdate()
+		{
+			m_currentState.Reason ();
+			m_currentState.UpdateSelf ();
+		}
+
+	}
+
+
+```
+
+
+###思考
+
+这里实现的是比较简单的原始状态机，如果使用上c#的 delegate特性，应该能实现更好的效果，留作日后研究。
+
+
+
+
+
+
+
