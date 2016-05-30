@@ -6,14 +6,14 @@ tags: [web前端]
 date: 2015-12-04 15:32:24.000000000 +09:00
 ---
 
-####实现效果
+###实现效果
 
 ![](http://i4.buimg.com/2f2ab00b93baa799.jpg)
 
-####插件介绍
+###插件介绍
 `jQuery Validate` 插件为表单提供了强大的验证功能，让客户端表单验证变得更简单，同时提供了大量的定制选项，满足应用程序各种需求。该插件捆绑了一套有用的验证方法，包括 URL 和电子邮件验证，同时提供了一个用来编写用户自定义方法的 API。
 
-####使用方法
+###使用方法
 [http://www.runoob.com/jquery/jquery-plugin-validate.html](http://www.runoob.com/jquery/jquery-plugin-validate.html)有详细的使用说明。
 
 ###本demo主要代码
@@ -66,6 +66,6 @@ $().ready(function(){
 
 ```
 
-####演示地址
+###演示地址
 [http://www.linkwwj.com/demos/form_demo.html](http://www.linkwwj.com/demos/form_demo.html)
 
