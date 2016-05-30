@@ -2,11 +2,12 @@
 layout: post
 title: jQuery实现Slider左右图片滑动
 categories: [技术]
-tags: [web, jquery]
+tags: [web前端]
 date: 2015-12-02 15:32:24.000000000 +09:00
 ---
 
-####效果
+####实现效果
+
 ![](http://i2.buimg.com/23954bdfec5bcba3.jpg)
 
 ####思路原理
@@ -69,3 +70,5 @@ date: 2015-12-02 15:32:24.000000000 +09:00
 
 ####演示地址
 [http://www.linkwwj.com/demos/slider_demo.html](http://www.linkwwj.com/demos/slider_demo.html "图片左右滑动轮播演示")
+
+
