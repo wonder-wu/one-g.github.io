@@ -1,6 +1,8 @@
 ---
 layout: post
 title: jQuery实现Slider左右图片滑动
+categories: [技术]
+tags: [web, jquery]
 date: 2015-12-02 15:32:24.000000000 +09:00
 ---
 
