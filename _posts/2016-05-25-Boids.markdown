@@ -7,8 +7,7 @@ date: 2016-05-25 15:32:24.000000000 +09:00
 ---
 ### 前言
 
-![](http://7xrn7f.com1.z0.glb.clouddn.com/16-5-31/54688654.jpg)
-
+![QQ20160531140356.jpg](http://imgchr.com/images/QQ20160531140356.jpg)
 
 群聚算法由Reynolds于1987年提出，其可以用来模拟鸟群、鱼群、军队等的移动。本次用unity来实现它。
 
@@ -40,14 +39,14 @@ Reynolds提出的群聚算法非常优雅简洁，就三个规则：
 ###运行图
 
 
-[![boids.gif](http://imgchr.com/images/boids.gif)]
+![boids.gif](http://imgchr.com/images/boids.gif)
 
 apk下载地址:[http://www.linkwwj.com/boids.apk](http://www.linkwwj.com/boids.apk)
 
 
 ###凝聚cohesion
 
-![](http://7xrn7f.com1.z0.glb.clouddn.com/16-5-31/41472457.jpg)
+![QQ20160531130214.jpg](http://imgchr.com/images/QQ20160531130214.jpg)
 
 如图，紫色的为当前`bird`,绿色的框为该`bird`的检测范围，用`NEIGHBOUR_RADIOUS`表示。当有其他`other birds`进入这个范围时，累加`n`个`other birds`的位置，再除以`n`便得到了检测范围内`other birds`的平均位置，再用`other birds`的平均位置向量减去本`bird`位置向量，便得到了该`bird`指向范围内群体平均位置的向量。
 
@@ -82,7 +81,7 @@ apk下载地址:[http://www.linkwwj.com/boids.apk](http://www.linkwwj.com/boids.
 
 ###对齐alignment
 
-![](http://7xrn7f.com1.z0.glb.clouddn.com/16-5-31/84983351.jpg)
+![QQ20160531142850.jpg](http://imgchr.com/images/QQ20160531142850.jpg)
 
 对齐和群聚的原理相似，只是群聚中计算`other birds`的平均位置，而对齐计算`other birds`的平均朝向，通过获取`other birds`的`velocity`即可计算。
 
@@ -117,7 +116,7 @@ apk下载地址:[http://www.linkwwj.com/boids.apk](http://www.linkwwj.com/boids.
 
 ###分隔separation
 
-![](http://7xrn7f.com1.z0.glb.clouddn.com/16-5-31/5530205.jpg)
+![QQ20160531151411.jpg](http://imgchr.com/images/QQ20160531151411.jpg)
 
 如图，红色部分为分离检测范围，用`DESIRED_SEPARATION`表示，分离的原理是在检测范围，`other birds`会给当前`bird`一个从自身指向`bird`的反向作用力，作用力的大小和距离成反比。
 
@@ -150,9 +149,9 @@ apk下载地址:[http://www.linkwwj.com/boids.apk](http://www.linkwwj.com/boids.
 
 ###躲避障碍物
 
-![](http://7xrn7f.com1.z0.glb.clouddn.com/16-5-31/54994189.jpg)
+![QQ20160531152236.jpg](http://imgchr.com/images/QQ20160531152236.jpg)
 
-如果屏幕上只有鸟群飞来飞去那真是太无聊了，于是再加上个躲避障碍物的能力，让鸟群的运动给人更加智能的感觉。
+如果屏幕上只有鸟群无意识的飞来飞去那真是太无聊了，于是再加上个躲避障碍物的能力，让鸟群的运动给人更加智能的感觉。
 
 如何实现躲避呢，原理也很简单。为每个`bird`的正前方向加入一个有一定长度的`触须`，当触须碰触到障碍物时，获取`触碰点C`，然后用`触碰点C`向量减去障碍物圆心向量`B向量`，便得到了一个`BC向量`，最后将`OA向量`转换为标准向量并除以`bird`与障碍物圆心的距离`dist`即可获得`斥力向量`。斥力向量与`dist`成反比。
 
@@ -215,7 +214,6 @@ apk下载地址:[http://www.linkwwj.com/boids.apk](http://www.linkwwj.com/boids.
 
 ```
 
-###
 
 
 
