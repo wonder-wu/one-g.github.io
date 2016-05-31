@@ -1,0 +1,224 @@
+---
+layout: post
+title: Unity学习之Boids群聚算法
+categories: [技术]
+tags: [unity]
+date: 2016-05-25 15:32:24.000000000 +09:00
+---
+### 前言
+
+![](http://7xrn7f.com1.z0.glb.clouddn.com/16-5-31/54688654.jpg)
+
+
+群聚算法由Reynolds于1987年提出，其可以用来模拟鸟群、鱼群、军队等的移动。本次用unity来实现它。
+
+### 基本群聚
+
+Reynolds提出的群聚算法非常优雅简洁，就三个规则：
+
+`凝聚cohesion`
+	每个单位都会往其临近的单位的平均位置移动
+	
+`对齐alignment` 
+	每个单位运动时，都会把自己对齐在临近单位的平均方向上
+
+`分隔separation`
+	每个单位运动时，都要避免撞到临近的单位
+
+>不得不佩服Reynolds，将复杂的鸟群运动抽象成如此简洁的三个规则。且Reynolds的算法表示鸟群运动是没有领导核心的，它们只是简单的跟着鸟群飞行，就形成了如此的视觉奇观。在实际的测试中，我发现确实如此。
+
+通过对算法规则的分析，可以发现，每个运动的物体，后文简称“bird”吧，需要知道周边一定范围内的其他鸟的信息（位置，移动方向），然后将这些信息通过群聚算法的三条规则进行处理，最后应用到自身的移动上即可。
+
+具体到程序上，也就是意味着需要一个保存着所有`bird`引用的`list`，在每个帧中，要在这个`list`中为每个`bird`找出其附近的其他`birds`,并获取其`position`，`velocity`,然后通过基本群聚规则生成相应的`force`来作用于自身的移动。
+
+###代码结构
+
+`BoidsControl类`负责生成`bird`并通过`m_birdList`保存所有的`bird`引用，并将该`list`传递给每个`bird`对象。
+
+`Bird类`包含一个Rigibody2d组件，用以施加力`Addforce`和获取移动方向`velocity`，该类负责在每帧根据算法规则计算运动`force`，并施加到自身。
+
+###运行图
+
+
+[![boids.gif](http://imgchr.com/images/boids.gif)]
+
+apk下载地址:[http://www.linkwwj.com/boids.apk](http://www.linkwwj.com/boids.apk)
+
+
+###凝聚cohesion
+
+![](http://7xrn7f.com1.z0.glb.clouddn.com/16-5-31/41472457.jpg)
+
+如图，紫色的为当前`bird`,绿色的框为该`bird`的检测范围，用`NEIGHBOUR_RADIOUS`表示。当有其他`other birds`进入这个范围时，累加`n`个`other birds`的位置，再除以`n`便得到了检测范围内`other birds`的平均位置，再用`other birds`的平均位置向量减去本`bird`位置向量，便得到了该`bird`指向范围内群体平均位置的向量。
+
+```
+
+	//聚集
+	Vector2 Cohesion()
+	{
+		Vector3 sum_vector = new Vector2 ();
+		int count = 0;
+
+		for (int i = 0; i < m_birdsList.Count; i++) {
+			var other = m_birdsList [i];
+			float dist = Vector2.Distance (other.transform.position,transform.position); 
+			//如果物体在范围内
+			if (dist > 0 && dist < m_BoidControl.NEIGHBOUR_RADIOUS) 
+			{
+				//累加位置
+				sum_vector += other.transform.position;
+				count++;
+			}
+		}
+
+		if (count > 0) {
+			sum_vector /= count;
+			sum_vector = sum_vector - transform.position;
+		}
+		return new Vector2 (sum_vector.x, sum_vector.y);
+	}
+
+```
+
+###对齐alignment
+
+![](http://7xrn7f.com1.z0.glb.clouddn.com/16-5-31/84983351.jpg)
+
+对齐和群聚的原理相似，只是群聚中计算`other birds`的平均位置，而对齐计算`other birds`的平均朝向，通过获取`other birds`的`velocity`即可计算。
+
+```
+
+	//对齐
+	Vector2 Alignment()
+	{
+		Vector3 sum_vector = new Vector2 ();
+		int count = 0;
+
+		for (int i = 0; i < m_birdsList.Count; i++) {
+			var other = m_birdsList [i];
+			float dist = Vector2.Distance (other.transform.position,transform.position); 
+			//如果物体在范围内
+			if (dist > 0 && dist < m_BoidControl.NEIGHBOUR_RADIOUS) 
+			{
+				var velocity = other.GetComponent<Rigidbody2D> ().velocity;
+				sum_vector += new Vector3 (velocity.x,velocity.y,0f); 
+				count++;
+			}
+		}
+
+		if (count > 0) {
+			sum_vector /= count;
+		}
+		return new Vector2 (sum_vector.x, sum_vector.y);
+	}
+
+
+```
+
+###分隔separation
+
+![](http://7xrn7f.com1.z0.glb.clouddn.com/16-5-31/5530205.jpg)
+
+如图，红色部分为分离检测范围，用`DESIRED_SEPARATION`表示，分离的原理是在检测范围，`other birds`会给当前`bird`一个从自身指向`bird`的反向作用力，作用力的大小和距离成反比。
+
+```
+
+	//分隔
+	Vector2 Separation()
+	{
+		Vector3 sum_vector = new Vector2 ();
+		int count = 0;
+
+		for (int i = 0; i < m_birdsList.Count; i++) {
+			var other = m_birdsList [i];
+			float dist = Vector2.Distance (other.transform.position,transform.position); 
+			//如果物体在范围内
+			if (dist > 0 && dist < m_BoidControl.DESIRED_SEPARATION) 
+			{
+				sum_vector += (transform.position - other.transform.position).normalized / dist;
+				count++;
+			}
+		}
+
+		if (count > 0) {
+			sum_vector /= count;
+		}
+		return new Vector2 (sum_vector.x, sum_vector.y);
+	}	
+
+```
+
+###躲避障碍物
+
+![](http://7xrn7f.com1.z0.glb.clouddn.com/16-5-31/54994189.jpg)
+
+如果屏幕上只有鸟群飞来飞去那真是太无聊了，于是再加上个躲避障碍物的能力，让鸟群的运动给人更加智能的感觉。
+
+如何实现躲避呢，原理也很简单。为每个`bird`的正前方向加入一个有一定长度的`触须`，当触须碰触到障碍物时，获取`触碰点C`，然后用`触碰点C`向量减去障碍物圆心向量`B向量`，便得到了一个`BC向量`，最后将`OA向量`转换为标准向量并除以`bird`与障碍物圆心的距离`dist`即可获得`斥力向量`。斥力向量与`dist`成反比。
+
+```
+
+	//躲避障碍物
+	Vector2 AvoidObstancle()
+	{
+		RaycastHit2D rh;
+		Vector2 origin = new Vector2 (transform.position.x, transform.position.y);
+
+		rh = Physics2D.Raycast (origin, transform.right, 2f,LayerMask.GetMask("Obstacle"));
+
+		//发现障碍物
+		if (rh.collider != null) {
+			Vector2 ab = rh.collider.transform.position - transform.position;
+			Vector2 ac = rh.point - new Vector2(transform.position.x,transform.position.y);
+			//bc为障碍物的圆心指向触角与障碍物的交点,即给出的作用力方向
+			var bc = ac - ab;
+			_todraw2 = rh.collider.transform.position;
+			_todraw3 = rh.collider.transform.position + new Vector3(bc.x,bc.y,0f);
+
+			var dist = Vector3.Distance (transform.position, rh.collider.transform.position);
+			if (dist > 0) {
+				return bc.normalized / dist; 
+			}
+				
+		}
+		return Vector2.zero;
+
+	}
+
+```
+
+###将计算出的各个分量力作用到`bird`上
+
+在`Update`中计算出各个分量向量后，施加就十分简单了，先将各个分量根据自己设定的权重`weight`累加，再用`Rigibody2d.AddForce()`即可施加到本`bird`上。不过值得注意的，`AddForce`理论上可以将速度加到无限大，很显然这并不是想要的结果，所以也要对`bird`的最大速度进行限制。
+
+```
+
+	void Update () {
+		Vector2 v = new Vector2 ();
+		if (m_birdsList != null) {
+			
+			v =  Cohesion () * m_BoidControl.COHESION_WEIGHT;
+			v += Alignment () * m_BoidControl.ALIGNMENT_WIGHT;
+			v += Separation ()* m_BoidControl.SEPARATION_WIGHT;
+			//躲避
+			v += AvoidObstancle ()*1000;
+		}
+
+		m_RD.AddForce(v*Time.deltaTime);
+		//限速
+		MaxVelocityLimit ();
+		//模型转向与Velocity同步
+		FaceToHeading ();
+		//处理超出屏幕
+		Wrap ();
+	}
+
+```
+
+###
+
+
+
+
+
+
